@@ -56,7 +56,7 @@ src/
 ├── dao/ # Database Access Objects
 ├── controllers/ # JavaFX screen controllers
 ├── views/ # FXML UI files
-└── utils/ # DBConnection, PasswordHasher
+└── utils/ # DBConnection, PasswordHashing
 ```
 
 ---
