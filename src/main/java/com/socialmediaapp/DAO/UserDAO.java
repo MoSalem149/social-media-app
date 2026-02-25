@@ -88,7 +88,7 @@ public class UserDAO implements DAO<User>{
         return users;
     }
     public List<User> findByName(String name) {
-        String sql = "SELECT * FROM USERS WHERE name = ?";
+        String sql = "SELECT * FROM USERS WHERE name Like CONCAT('%',?,'%')";
         List<User> users = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
