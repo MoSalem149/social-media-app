@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Post {
     private int id;
+    private int user_id;
     private String content;
     private String image_path;
     private Privacy privacy;
