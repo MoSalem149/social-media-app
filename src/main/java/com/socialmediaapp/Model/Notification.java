@@ -11,11 +11,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Notification {
+
     private int id;
-    private int user_id;
-    private int sender_id;
+    private int userId;
+    private int senderId;
     private Type type;
-    private int reference_id;
-    private boolean is_read;
-    private LocalDateTime created_at;
+    private int referenceId;
+    private boolean read;
+    private LocalDateTime createdAt;
 }
