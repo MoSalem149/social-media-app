@@ -42,6 +42,7 @@ CREATE TABLE friends (
     friend_id INT NOT NULL,
     status ENUM('pending', 'accepted') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_user_less_than_friend CHECK (user_id < friend_id)
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
 );
