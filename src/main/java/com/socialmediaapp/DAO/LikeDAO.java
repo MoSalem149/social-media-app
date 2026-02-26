@@ -147,6 +147,47 @@ public class LikeDAO implements DAO<Like>{
             return new Page<>(Collections.emptyList(), pageNumber, pageSize, 0);
         }
     }
+    public List<Like> findAllByUserId(int user_id) {
+        String sql = "SELECT * FROM Likes WHERE user_id = ?";
+        List<Like> likes = new ArrayList<>();
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()){
+                likes.add(Like.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .postId(resultset.getInt("post_id"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return likes;
+    }
+    public List<Like> findAllByPostId(int post_id) {
+        String sql = "SELECT * FROM LIKES WHERE post_id = ?";
+        List<Like> likes = new ArrayList<>();
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()){
+                likes.add(Like.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .postId(resultset.getInt("post_id"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
+        }
+        return likes;
+    }
 
     @Override
     public boolean update(Like like) {

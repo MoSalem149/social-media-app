@@ -41,6 +41,52 @@ public class FriendDAO implements DAO<Friend>{
         return Optional.empty();
     }
 
+    public Optional<Friend> findByFriendId(int friend_id) {
+        String sql = "SELECT * FROM FRIENDS WHERE friend_id = ?";
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,friend_id);
+            ResultSet resultset = preparedStatement.executeQuery();
+            if(resultset.next()){
+                Friend friend = Friend.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .friendId(resultset.getInt("friend_id"))
+                        .status(resultset.getObject("status", Status.class))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build();
+                return Optional.of(friend);
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+    public Optional<Friend> findByUserIdAndFriendId(int userId,int friend_id) {
+        String sql = "SELECT * FROM FRIENDS WHERE user_id = ?, AND friend_id = ?";
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,userId);
+            preparedStatement.setInt(2,friend_id);
+            ResultSet resultset = preparedStatement.executeQuery();
+            if(resultset.next()){
+                Friend friend = Friend.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .friendId(resultset.getInt("friend_id"))
+                        .status(resultset.getObject("status", Status.class))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build();
+                return Optional.of(friend);
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
     @Override
     public List<Friend> findAll() {
         String sql = "SELECT * FROM FRIENDS";
@@ -148,6 +194,29 @@ public class FriendDAO implements DAO<Friend>{
             e.printStackTrace();
             return new Page<>(Collections.emptyList(), pageNumber, pageSize, 0);
         }
+    }
+    public List<Friend> findAllByUserId(int user_id) {
+        String sql = "SELECT * FROM FRIENDS WHERE user_id = ?";
+        List<Friend> friends = new ArrayList<>();
+        try (Connection connection = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, user_id);
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()) {
+                friends.add(Friend.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .friendId(resultset.getInt("friend_id"))
+                        .status(resultset.getObject("status", Status.class))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
+        }
+        return friends;
     }
     @Override
     public boolean update(Friend friend) {

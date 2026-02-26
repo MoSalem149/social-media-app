@@ -1,10 +1,7 @@
 package com.socialmediaapp;
 
-import com.socialmediaapp.DAO.PostDAO;
-import com.socialmediaapp.DAO.UserDAO;
-import com.socialmediaapp.Service.AuthService;
-import com.socialmediaapp.Service.PostService;
-import com.socialmediaapp.Service.UserService;
+import com.socialmediaapp.DAO.*;
+import com.socialmediaapp.Service.*;
 import com.socialmediaapp.Util.DDL;
 import com.socialmediaapp.Util.UserSession;
 
@@ -15,8 +12,11 @@ public class SocialMediaApplication {
         DDL.createTables();
 
         AuthService authService = new AuthService(UserSession.getInstance(),new UserDAO());
-        UserService userService = new UserService(new UserDAO());
-        PostService postService = new PostService(new UserDAO(),new PostDAO(),authService);
+        UserService userService = new UserService(new UserDAO(),new FriendDAO(),new PostDAO(),new CommentDAO(),new LikeDAO(),authService);
+        PostService postService = new PostService(new UserDAO(),new PostDAO(),new CommentDAO(),authService);
+        CommentService commentService = new CommentService(new UserDAO(),new CommentDAO(),new PostDAO(),authService);
+        FriendService friendService = new FriendService(new FriendDAO(),new UserDAO(),authService);
+        LikeService likeService = new LikeService(new UserDAO(),new PostDAO(),new LikeDAO(),authService);
 
     }
 }

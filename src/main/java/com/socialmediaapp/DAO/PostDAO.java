@@ -64,6 +64,30 @@ public class PostDAO implements DAO<Post>{
         }
         return posts;
     }
+    public List<Post> findAllByUserId(int user_id) {
+        String sql = "SELECT * FROM POSTS WHERE user_id = ?";
+        List<Post> posts = new ArrayList<>();
+        try (Connection connection = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, user_id);
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()) {
+                posts.add(Post.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .content(resultset.getString("content"))
+                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .imagePath(resultset.getString("image_path"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+
+        }
+        return posts;
+    }
     @Override
     public Page<Post> findAll(int pageNumber, int pageSize, String sortBy, String sortDir,
                               Optional<String> searchTerm,
