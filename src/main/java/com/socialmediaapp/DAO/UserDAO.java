@@ -2,17 +2,19 @@ package com.socialmediaapp.DAO;
 
 import com.socialmediaapp.Model.User;
 import com.socialmediaapp.Util.DBConnection;
+import com.socialmediaapp.Util.Page;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class UserDAO implements DAO<User>{
+    private static final List<String> ALLOWED_SORT_FIELDS = Arrays.asList(
+            "id", "name", "email", "created_at"
+    );
     @Override
     public Optional<User> findById(int id) {
         String sql = "SELECT * FROM USERS WHERE id = ?";
@@ -27,8 +29,8 @@ public class UserDAO implements DAO<User>{
                         .email(resultset.getString("email"))
                         .password(resultset.getString("password"))
                         .bio(resultset.getString("bio"))
-                        .profile_pic(resultset.getString("profile_pic"))
-                        .created_at(resultset.getObject("created_at", LocalDateTime.class))
+                        .profilePic(resultset.getString("profile_pic"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(user);
             }
@@ -51,8 +53,8 @@ public class UserDAO implements DAO<User>{
                         .email(resultset.getString("email"))
                         .password(resultset.getString("password"))
                         .bio(resultset.getString("bio"))
-                        .profile_pic(resultset.getString("profile_pic"))
-                        .created_at(resultset.getObject("created_at", LocalDateTime.class))
+                        .profilePic(resultset.getString("profile_pic"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(user);
             }
@@ -65,7 +67,7 @@ public class UserDAO implements DAO<User>{
 
     @Override
     public List<User> findAll() {
-        String sql = "SELECT * FROM USERS";
+        String sql = "SELECT * FROM USERS ORDER BY id";
         List<User> users = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
@@ -77,8 +79,8 @@ public class UserDAO implements DAO<User>{
                         .email(resultset.getString("email"))
                         .password(resultset.getString("password"))
                         .bio(resultset.getString("bio"))
-                        .profile_pic(resultset.getString("profile_pic"))
-                        .created_at(resultset.getObject("created_at", LocalDateTime.class))
+                        .profilePic(resultset.getString("profile_pic"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
         }catch (SQLException e){
@@ -87,28 +89,93 @@ public class UserDAO implements DAO<User>{
         }
         return users;
     }
-    public List<User> findByName(String name) {
-        String sql = "SELECT * FROM USERS WHERE name Like CONCAT('%',?,'%')";
-        List<User> users = new ArrayList<>();
-        try(Connection connection = DBConnection.getAppDataSource().getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
-            ResultSet resultset = preparedStatement.executeQuery();
-            while (resultset.next()){
+    @Override
+    public Page<User> findAll(int pageNumber, int pageSize, String sortBy, String sortDir,
+                              Optional<String> searchTerm,
+                              Optional<Integer> filter1,
+                              Optional<Integer> filter2) {
+
+        if (!ALLOWED_SORT_FIELDS.contains(sortBy)) {
+            sortBy = "id";
+        }
+        sortDir = sortDir != null && sortDir.equalsIgnoreCase("DESC") ? "DESC" : "ASC";
+
+        int offset = pageNumber * pageSize;
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM users");
+        StringBuilder countSql = new StringBuilder("SELECT COUNT(*) FROM users");
+        List<Object> parameters = new ArrayList<>();
+        boolean hasWhere = false; // track if WHERE is already added
+
+        // searchTerm filter
+        if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
+            sql.append(" WHERE LOWER(name) LIKE ?");
+            countSql.append(" WHERE LOWER(name) LIKE ?");
+            parameters.add("%" + searchTerm.get().toLowerCase() + "%");
+            hasWhere = true;
+        }
+
+        // filter1 (e.g., user role or some id)
+        if(filter1.isPresent()){
+            sql.append(hasWhere ? " AND " : " WHERE ");
+            countSql.append(hasWhere ? " AND " : " WHERE ");
+            sql.append("some_column1 = ?");
+            countSql.append("some_column1 = ?");
+            parameters.add(filter1.get());
+            hasWhere = true;
+        }
+
+        // filter2 (e.g., another id or status)
+        if(filter2.isPresent()){
+            sql.append(hasWhere ? " AND " : " WHERE ");
+            countSql.append(hasWhere ? " AND " : " WHERE ");
+            sql.append("some_column2 = ?");
+            countSql.append("some_column2 = ?");
+            parameters.add(filter2.get());
+        }
+
+        // Sorting and Pagination
+        sql.append(" ORDER BY ").append(sortBy).append(" ").append(sortDir);
+        sql.append(" LIMIT ? OFFSET ?");
+        parameters.add(pageSize);
+        parameters.add(offset);
+
+        try (Connection connection = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql.toString());
+             PreparedStatement countStmt = connection.prepareStatement(countSql.toString())) {
+
+            // Set parameters for SELECT
+            for (int i = 0; i < parameters.size(); i++) {
+                stmt.setObject(i + 1, parameters.get(i));
+            }
+
+            ResultSet rs = stmt.executeQuery();
+            List<User> users = new ArrayList<>();
+            while(rs.next()){
                 users.add(User.builder()
-                        .id(resultset.getInt("id"))
-                        .name(resultset.getString("name"))
-                        .email(resultset.getString("email"))
-                        .password(resultset.getString("password"))
-                        .bio(resultset.getString("bio"))
-                        .profile_pic(resultset.getString("profile_pic"))
-                        .created_at(resultset.getObject("created_at", LocalDateTime.class))
+                        .id(rs.getInt("id"))
+                        .name(rs.getString("name"))
+                        .email(rs.getString("email"))
+                        .password(rs.getString("password"))
+                        .bio(rs.getString("bio"))
+                        .profilePic(rs.getString("profile_pic"))
+                        .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
             }
-        }catch (SQLException e){
-            System.out.println(e.getMessage());
+
+            // Set parameters for COUNT
+            for(int i = 0; i < parameters.size() - 2; i++) { // exclude last 2 (LIMIT + OFFSET)
+                countStmt.setObject(i + 1, parameters.get(i));
+            }
+            ResultSet countRs = countStmt.executeQuery();
+            int totalElements = countRs.next() ? countRs.getInt(1) : 0;
+
+            return new Page<>(users, pageNumber, pageSize, totalElements);
+
+        } catch (SQLException e){
             e.printStackTrace();
+            return new Page<>(Collections.emptyList(), pageNumber, pageSize, 0);
         }
-        return users;
     }
     @Override
     public boolean update(User user) {
@@ -119,7 +186,7 @@ public class UserDAO implements DAO<User>{
             preparedStatement.setString(2,user.getEmail());
             preparedStatement.setString(3,user.getPassword());
             preparedStatement.setString(4,user.getBio());
-            preparedStatement.setString(5,user.getProfile_pic());
+            preparedStatement.setString(5,user.getProfilePic());
             preparedStatement.setInt(6,user.getId());
             boolean res = preparedStatement.executeUpdate() > 0;
             System.out.println("User Updated!");
@@ -156,8 +223,8 @@ public class UserDAO implements DAO<User>{
             preparedStatement.setString(2,user.getEmail());
             preparedStatement.setString(3,user.getPassword());
             preparedStatement.setString(4,user.getBio());
-            preparedStatement.setString(5,user.getPassword());
-            preparedStatement.setObject(6,user.getCreated_at());
+            preparedStatement.setString(5,user.getProfilePic());
+            preparedStatement.setObject(6,user.getCreatedAt());
             boolean res = preparedStatement.executeUpdate() > 0;
             System.out.println("User Created!");
             return res;

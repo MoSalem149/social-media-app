@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Comment {
     private int id;
-    private int user_id;
-    private int post_id;
+    private int userId;
+    private int postId;
     private String content;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

@@ -15,6 +15,6 @@ public class User {
     private String email;
     private String password;
     private String bio;
-    private String profile_pic;
-    private LocalDateTime created_at;
+    private String profilePic;
+    private LocalDateTime createdAt;
 }
