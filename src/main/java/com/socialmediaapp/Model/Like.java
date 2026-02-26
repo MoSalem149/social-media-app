@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Like {
     private int id;
-    private int user_id;
-    private int post_id;
-    private LocalDateTime created_at;
+    private int userId;
+    private int postId;
+    private LocalDateTime createdAt;
 }

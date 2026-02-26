@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Builder
 public class Post {
     private int id;
-    private int user_id;
+    private int userId;
     private String content;
-    private String image_path;
+    private String imagePath;
     private Privacy privacy;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }
