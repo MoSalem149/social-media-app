@@ -1,7 +1,7 @@
 package com.socialmediaapp.Service;
 
-import com.socialmediaapp.DAO.UserDAO;
-import com.socialmediaapp.Model.User;
+import com.socialmediaapp.DAO.*;
+import com.socialmediaapp.Model.*;
 import com.socialmediaapp.Util.ImageUploader;
 import com.socialmediaapp.Util.Page;
 import org.json.JSONException;
@@ -13,9 +13,19 @@ import java.util.Optional;
 
 public class UserService {
     private final UserDAO userDAO;
+    private final FriendDAO friendDAO;
+    private final PostDAO postDAO;
+    private final CommentDAO commentDAO;
+    private final LikeDAO likeDAO;
+    private final AuthService authService;
 
-    public UserService(UserDAO userDAO){
+    public UserService(UserDAO userDAO, FriendDAO friendDAO, PostDAO postDAO, CommentDAO commentDAO, LikeDAO likeDAO, AuthService authService){
         this.userDAO = userDAO;
+        this.friendDAO = friendDAO;
+        this.postDAO = postDAO;
+        this.commentDAO = commentDAO;
+        this.likeDAO = likeDAO;
+        this.authService=authService;
     }
 
     public User getUserById(int id){
@@ -33,13 +43,39 @@ public class UserService {
         return userDAO.findAll(pageNumber,pageSize,sortBy,sortDir,Optional.of(searchTerm),Optional.empty(),Optional.empty());
     }
     public boolean updateUser(User user, Optional<File> imageFile) throws JSONException, IOException, InterruptedException {
-        if(imageFile.isPresent()){
-            user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+        if(user.getId() == authService.getCurrentUser().getId() && userDAO.findById(user.getId()).isPresent()){
+            if(imageFile.isPresent()){
+                user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+            }
+            return userDAO.update(user);
         }
-        return userDAO.update(user);
+        throw new IllegalArgumentException("Unauthorized !");
     }
-    public boolean deleteUser(User user){
-        return userDAO.delete(user);
+    public void deleteUser(User user){
+        if(user.getId() == authService.getCurrentUser().getId() && userDAO.findById(user.getId()).isPresent()){
+            List<Friend> friends = friendDAO.findAllByUserId(user.getId());
+            List<Post> posts = postDAO.findAllByUserId(user.getId());
+            List<Comment> comments = commentDAO.findAllByUserId(user.getId());
+            List<Like> likes = likeDAO.findAllByUserId(user.getId());
+
+            for(Friend friend : friends){
+                friendDAO.delete(friend);
+            }
+
+            for (Like like : likes){
+                likeDAO.delete(like);
+            }
+            for(Comment comment : comments){
+                commentDAO.delete(comment);
+            }
+            for(Post post : posts){
+                postDAO.delete(post);
+            }
+
+            userDAO.delete(user);
+            authService.logout();
+        }
+        throw new IllegalArgumentException("Unauthorized !");
     }
 
 }

@@ -149,6 +149,51 @@ public class CommentDAO implements DAO<Comment>{
         }
     }
 
+    public List<Comment> findAllByUserId(int user_id) {
+        String sql = "SELECT * FROM COMMENTS WHERE user_id = ?";
+        List<Comment> comments = new ArrayList<>();
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()){
+                comments.add(Comment.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .postId(resultset.getInt("post_id"))
+                        .content(resultset.getString("content"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return comments;
+    }
+    public List<Comment> findAllByPostId(int post_id) {
+        String sql = "SELECT * FROM COMMENTS WHERE post_id = ?";
+        List<Comment> comments = new ArrayList<>();
+        try(Connection connection = DBConnection.getAppDataSource().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            ResultSet resultset = preparedStatement.executeQuery();
+            while (resultset.next()){
+                comments.add(Comment.builder()
+                        .id(resultset.getInt("id"))
+                        .userId(resultset.getInt("user_id"))
+                        .postId(resultset.getInt("post_id"))
+                        .content(resultset.getString("content"))
+                        .createdAt(resultset.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+
+            e.printStackTrace();
+
+        }
+        return comments;
+    }
+
     @Override
     public boolean update(Comment comment) {
         String sql = "UPDATE COMMENTS SET content = ? WHERE id = ?";

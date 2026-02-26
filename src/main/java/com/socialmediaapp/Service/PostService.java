@@ -1,7 +1,9 @@
 package com.socialmediaapp.Service;
 
+import com.socialmediaapp.DAO.CommentDAO;
 import com.socialmediaapp.DAO.PostDAO;
 import com.socialmediaapp.DAO.UserDAO;
+import com.socialmediaapp.Model.Comment;
 import com.socialmediaapp.Model.Post;
 import com.socialmediaapp.Util.ImageUploader;
 import com.socialmediaapp.Util.Page;
@@ -16,10 +18,12 @@ import java.util.Optional;
 public class PostService {
     private final UserDAO userDAO;
     private final PostDAO postDAO;
+    private final CommentDAO commentDAO;
     private final AuthService authService;
-    public PostService(UserDAO userDAO,PostDAO postDAO,AuthService authService){
+    public PostService(UserDAO userDAO, PostDAO postDAO, CommentDAO commentDAO, AuthService authService){
         this.userDAO = userDAO;
         this.postDAO = postDAO;
+        this.commentDAO = commentDAO;
         this.authService = authService;
     }
 
@@ -37,18 +41,26 @@ public class PostService {
 
     public boolean updatePost(Post post, Optional<File> imageFile) throws JSONException, IOException, InterruptedException {
         if(userDAO.findById(post.getUserId()).isPresent() && authService.getCurrentUser().getId() == post.getUserId()){
-            if(imageFile.isPresent()){
-                post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
-            }
-            postDAO.update(post);
-            return true;
+            if(postDAO.findById(post.getId()).isPresent()){
+                if(imageFile.isPresent()){
+                    post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
+                }
+                postDAO.update(post);
+                return true;
+            }else throw new IllegalArgumentException("Post Not Found");
         }
         throw new IllegalArgumentException("Unauthorized !");
     }
     public boolean deletePost(Post post){
         if(userDAO.findById(post.getUserId()).isPresent() && authService.getCurrentUser().getId() == post.getUserId()){
-            postDAO.delete(post);
-            return true;
+            if(postDAO.findById(post.getId()).isPresent()){
+                List<Comment> comments = commentDAO.findAllByPostId(post.getId());
+                for(Comment comment : comments){
+                    commentDAO.delete(comment);
+                }
+                postDAO.delete(post);
+                return true;
+            }else throw new IllegalArgumentException("Post Not Found");
         }
         throw new IllegalArgumentException("Unauthorized !");
     }
