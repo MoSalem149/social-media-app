@@ -28,7 +28,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
@@ -53,7 +53,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -76,7 +76,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -155,7 +155,7 @@ public class PostDAO implements DAO<Post>{
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .content(rs.getString("content"))
-                        .privacy(rs.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(rs.getString("privacy").toUpperCase()))
                         .imagePath(rs.getString("image_path"))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -181,7 +181,7 @@ public class PostDAO implements DAO<Post>{
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setString(1,post.getContent());
-            preparedStatement.setString(2,post.getPrivacy().name());
+            preparedStatement.setString(2,post.getPrivacy().name().toLowerCase());
             preparedStatement.setString(3,post.getImagePath());
             preparedStatement.setInt(4,post.getId());
             boolean res = preparedStatement.executeUpdate() > 0;
@@ -212,12 +212,12 @@ public class PostDAO implements DAO<Post>{
 
     @Override
     public boolean save(Post post) {
-        String sql = "INSERT INTO POSTS(user_id,content,privacy,image_path,created_at) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO POSTS(user_id,content,privacy,image_path,created_at) VALUES(?,?,?,?,?)";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,post.getUserId());
             preparedStatement.setString(2,post.getContent());
-            preparedStatement.setString(3,post.getPrivacy().name());
+            preparedStatement.setString(3,post.getPrivacy().name().toLowerCase());
             preparedStatement.setString(4,post.getImagePath());
             preparedStatement.setObject(5,post.getCreatedAt());
             boolean res = preparedStatement.executeUpdate() > 0;

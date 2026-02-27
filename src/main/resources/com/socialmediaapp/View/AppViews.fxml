@@ -1,14 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.socialmediaapp.View.AppViews"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.socialmediaapp.Controller.AppControllers" prefHeight="760.0" prefWidth="1000.0">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="header-bar">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <Label fx:id="sessionLabel" text="Session: not logged in" />
+            <Button text="Refresh" onAction="#onRefresh" />
+            <Button text="Logout" onAction="#onLogout" />
+        </HBox>
+    </top>
 
-</AnchorPane>
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab text="Authentication">
+                    <SplitPane dividerPositions="0.5">
+                        <VBox spacing="8" padding="10">
+                            <Label text="Register" style="-fx-font-weight: bold;" />
+                            <TextField fx:id="registerNameField" promptText="Name" />
+                            <TextField fx:id="registerEmailField" promptText="Email" />
+                            <PasswordField fx:id="registerPasswordField" promptText="Password" />
+                            <TextArea fx:id="registerBioField" promptText="Bio" prefRowCount="3" />
+                            <Button text="Create Account" onAction="#onRegister" />
+                        </VBox>
+
+                        <VBox spacing="8" padding="10">
+                            <Label text="Login" style="-fx-font-weight: bold;" />
+                            <TextField fx:id="loginEmailField" promptText="Email" />
+                            <PasswordField fx:id="loginPasswordField" promptText="Password" />
+                            <Button text="Login" onAction="#onLogin" />
+                        </VBox>
+                    </SplitPane>
+                </Tab>
+
+                <Tab text="Profile">
+                    <VBox spacing="8" padding="10">
+                        <Label text="Profile Management" style="-fx-font-weight: bold;" />
+                        <TextField fx:id="profileNameField" promptText="Name" />
+                        <TextField fx:id="profileEmailField" promptText="Email" />
+                        <PasswordField fx:id="profilePasswordField" promptText="New Password (optional)" />
+                        <TextArea fx:id="profileBioField" promptText="Bio" prefRowCount="4" />
+                        <Button text="Update Profile" onAction="#onUpdateProfile" />
+                    </VBox>
+                </Tab>
+
+                <Tab text="Posts & Feed">
+                    <VBox spacing="10" padding="10">
+                        <HBox spacing="8">
+                            <TextArea fx:id="postContentField" prefRowCount="2" promptText="What's on your mind?" HBox.hgrow="ALWAYS" />
+                            <VBox spacing="8">
+                                <ComboBox fx:id="privacyCombo" prefWidth="150" />
+                                <Button text="Create Post" onAction="#onCreatePost" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="8">
+                            <TextField fx:id="likePostIdField" promptText="Post ID to like" />
+                            <Button text="Like" onAction="#onLikePost" />
+                            <TextField fx:id="commentPostIdField" promptText="Post ID to comment" />
+                            <TextArea fx:id="commentContentField" promptText="Comment" prefRowCount="1" />
+                            <Button text="Comment" onAction="#onCreateComment" />
+                        </HBox>
+
+                        <Label text="News Feed" style="-fx-font-weight: bold;" />
+                        <ListView fx:id="feedList" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </Tab>
+
+                <Tab text="Friends">
+                    <VBox spacing="8" padding="10">
+                        <Label text="Friend System" style="-fx-font-weight: bold;" />
+                        <HBox spacing="8">
+                            <TextField fx:id="friendIdField" promptText="Friend user ID" />
+                            <Button text="Send Request" onAction="#onSendFriendRequest" />
+                            <Button text="Accept First Pending" onAction="#onAcceptFirstPending" />
+                        </HBox>
+                        <ListView fx:id="friendList" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </Tab>
+
+                <Tab text="Notifications">
+                    <VBox spacing="8" padding="10">
+                        <Label text="Notifications" style="-fx-font-weight: bold;" />
+                        <ListView fx:id="notificationList" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </Tab>
+
+                <Tab text="Search">
+                    <VBox spacing="8" padding="10">
+                        <HBox spacing="8">
+                            <TextField fx:id="searchTermField" promptText="Search users or posts" HBox.hgrow="ALWAYS" />
+                            <Button text="Search" onAction="#onSearch" />
+                        </HBox>
+                        <ListView fx:id="searchList" VBox.vgrow="ALWAYS" />
+                    </VBox>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>

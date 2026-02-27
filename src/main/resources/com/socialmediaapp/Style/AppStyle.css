@@ -1,0 +1,16 @@
+.root {
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.header-bar {
+    -fx-background-color: linear-gradient(to right, #6a5acd, #483d8b);
+}
+
+.header-bar .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.button {
+    -fx-background-radius: 6;
+}

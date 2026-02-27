@@ -1,7 +1,6 @@
 package com.socialmediaapp.DAO;
 
 import com.socialmediaapp.Model.Comment;
-import com.socialmediaapp.Model.User;
 import com.socialmediaapp.Util.DBConnection;
 import com.socialmediaapp.Util.Page;
 
@@ -78,9 +77,8 @@ public class CommentDAO implements DAO<Comment>{
         StringBuilder sql = new StringBuilder("SELECT * FROM comments");
         StringBuilder countSql = new StringBuilder("SELECT COUNT(*) FROM comments");
         List<Object> parameters = new ArrayList<>();
-        boolean hasWhere = false; // track if WHERE is already added
+        boolean hasWhere = false;
 
-        // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
             sql.append(" WHERE LOWER(name) LIKE ?");
             countSql.append(" WHERE LOWER(name) LIKE ?");
@@ -88,7 +86,6 @@ public class CommentDAO implements DAO<Comment>{
             hasWhere = true;
         }
 
-        // filter1 (e.g., user role or some id)
         if(userId.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
@@ -98,7 +95,6 @@ public class CommentDAO implements DAO<Comment>{
             hasWhere = true;
         }
 
-        // filter2 (e.g., another id or status)
         if(postId.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
@@ -107,7 +103,6 @@ public class CommentDAO implements DAO<Comment>{
             parameters.add(postId.get());
         }
 
-        // Sorting and Pagination
         sql.append(" ORDER BY ").append(sortBy).append(" ").append(sortDir);
         sql.append(" LIMIT ? OFFSET ?");
         parameters.add(pageSize);
@@ -117,7 +112,6 @@ public class CommentDAO implements DAO<Comment>{
              PreparedStatement stmt = connection.prepareStatement(sql.toString());
              PreparedStatement countStmt = connection.prepareStatement(countSql.toString())) {
 
-            // Set parameters for SELECT
             for (int i = 0; i < parameters.size(); i++) {
                 stmt.setObject(i + 1, parameters.get(i));
             }
@@ -134,8 +128,7 @@ public class CommentDAO implements DAO<Comment>{
                         .build());
             }
 
-            // Set parameters for COUNT
-            for(int i = 0; i < parameters.size() - 2; i++) { // exclude last 2 (LIMIT + OFFSET)
+            for(int i = 0; i < parameters.size() - 2; i++) {
                 countStmt.setObject(i + 1, parameters.get(i));
             }
             ResultSet countRs = countStmt.executeQuery();
@@ -154,6 +147,7 @@ public class CommentDAO implements DAO<Comment>{
         List<Comment> comments = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 comments.add(Comment.builder()
@@ -175,6 +169,7 @@ public class CommentDAO implements DAO<Comment>{
         List<Comment> comments = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,post_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 comments.add(Comment.builder()
@@ -187,9 +182,7 @@ public class CommentDAO implements DAO<Comment>{
             }
         }catch (SQLException e){
             System.out.println(e.getMessage());
-
             e.printStackTrace();
-
         }
         return comments;
     }
