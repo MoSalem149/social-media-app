@@ -36,7 +36,7 @@ public class CommentService {
     }
 
     public boolean updateComment(Comment comment){
-        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getId()).isPresent()){
+        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getUserId()).isPresent()){
            if(commentDAO.findById(comment.getId()).isPresent()){
                return commentDAO.update(comment);
            }else throw new IllegalArgumentException("Comment Not Found!");
@@ -45,7 +45,7 @@ public class CommentService {
     }
 
     public boolean deleteComment(Comment comment){
-        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getId()).isPresent()){
+        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getUserId()).isPresent()){
             if(commentDAO.findById(comment.getId()).isPresent()){
                 return commentDAO.delete(comment);
             }else throw new IllegalArgumentException("Comment Not Found!");

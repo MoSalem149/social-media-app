@@ -20,7 +20,7 @@ public class NotificationDAO implements DAO<Notification> {
                 .id(rs.getInt("id"))
                 .userId(rs.getInt("user_id"))
                 .senderId(rs.getInt("sender_id"))
-                .type(rs.getObject("type", Type.class))
+                .type(Type.valueOf(rs.getString("type").toUpperCase()))
                 .referenceId(rs.getInt("reference_id"))
                 .read(rs.getBoolean("is_read"))
                 .createdAt(rs.getObject("created_at", LocalDateTime.class))
@@ -98,7 +98,7 @@ public class NotificationDAO implements DAO<Notification> {
 
             ps.setInt(1, notification.getUserId());
             ps.setInt(2, notification.getSenderId());
-            ps.setString(3, notification.getType().name());
+            ps.setString(3, notification.getType().name().toLowerCase());
             ps.setInt(4, notification.getReferenceId());
             ps.setBoolean(5, notification.isRead());
             ps.setObject(6, notification.getCreatedAt());

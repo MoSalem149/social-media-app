@@ -1,8 +1,6 @@
 package com.socialmediaapp.DAO;
 
-import com.socialmediaapp.Enum.Privacy;
 import com.socialmediaapp.Model.Like;
-import com.socialmediaapp.Model.Post;
 import com.socialmediaapp.Util.DBConnection;
 import com.socialmediaapp.Util.Page;
 
@@ -78,9 +76,8 @@ public class LikeDAO implements DAO<Like>{
         StringBuilder sql = new StringBuilder("SELECT * FROM likes");
         StringBuilder countSql = new StringBuilder("SELECT COUNT(*) FROM likes");
         List<Object> parameters = new ArrayList<>();
-        boolean hasWhere = false; // track if WHERE is already added
+        boolean hasWhere = false;
 
-        // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
             sql.append(" WHERE LOWER(name) LIKE ?");
             countSql.append(" WHERE LOWER(name) LIKE ?");
@@ -88,7 +85,6 @@ public class LikeDAO implements DAO<Like>{
             hasWhere = true;
         }
 
-        // filter1 (e.g., user role or some id)
         if(userId.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
@@ -98,7 +94,6 @@ public class LikeDAO implements DAO<Like>{
             hasWhere = true;
         }
 
-        // filter2 (e.g., another id or status)
         if(postId.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
@@ -107,7 +102,6 @@ public class LikeDAO implements DAO<Like>{
             parameters.add(postId.get());
         }
 
-        // Sorting and Pagination
         sql.append(" ORDER BY ").append(sortBy).append(" ").append(sortDir);
         sql.append(" LIMIT ? OFFSET ?");
         parameters.add(pageSize);
@@ -117,7 +111,6 @@ public class LikeDAO implements DAO<Like>{
              PreparedStatement stmt = connection.prepareStatement(sql.toString());
              PreparedStatement countStmt = connection.prepareStatement(countSql.toString())) {
 
-            // Set parameters for SELECT
             for (int i = 0; i < parameters.size(); i++) {
                 stmt.setObject(i + 1, parameters.get(i));
             }
@@ -133,8 +126,7 @@ public class LikeDAO implements DAO<Like>{
                         .build());
             }
 
-            // Set parameters for COUNT
-            for(int i = 0; i < parameters.size() - 2; i++) { // exclude last 2 (LIMIT + OFFSET)
+            for(int i = 0; i < parameters.size() - 2; i++) {
                 countStmt.setObject(i + 1, parameters.get(i));
             }
             ResultSet countRs = countStmt.executeQuery();
@@ -152,6 +144,7 @@ public class LikeDAO implements DAO<Like>{
         List<Like> likes = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 likes.add(Like.builder()
@@ -172,6 +165,7 @@ public class LikeDAO implements DAO<Like>{
         List<Like> likes = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,post_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 likes.add(Like.builder()
