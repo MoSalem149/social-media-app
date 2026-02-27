@@ -12,6 +12,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +46,16 @@ public class PostService {
         java.util.Set<Integer> feedUserIds = new java.util.HashSet<>();
         feedUserIds.add(currentId);
         feedUserIds.addAll(friendDAO.findFriendUserIds(currentId));
-        return postDAO.findFeedByUserIds(feedUserIds);
+        List<Post> raw = postDAO.findFeedByUserIds(feedUserIds);
+        List<Post> visible = new ArrayList<>();
+        for (Post post : raw) {
+            if (post.getUserId() == currentId) {
+                visible.add(post);
+            } else if (post.getPrivacy() != com.socialmediaapp.Enum.Privacy.PRIVATE) {
+                visible.add(post);
+            }
+        }
+        return visible;
     }
     public Page<Post> getAllPostsAsPage(int pageNumber, int pageSize, String sortBy, String sortDir,
                                         int userId,int postId){

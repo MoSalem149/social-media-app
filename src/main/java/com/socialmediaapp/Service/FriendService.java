@@ -72,25 +72,24 @@ public class FriendService {
     }
 
     public boolean createFriend(Friend friend) {
-        if (friend.getFriendId() == friend.getUserId() || friend.getFriendId() == authService.getCurrentUser().getId()) {
+        if (friend.getFriendId() == friend.getUserId()) {
             throw new IllegalArgumentException("You Can't Create Friendship with yourself !");
+        }
+        if (friend.getUserId() != authService.getCurrentUser().getId()) {
+            throw new IllegalArgumentException("Unauthorized !");
         }
         if (userDAO.findById(friend.getUserId()).isEmpty() || userDAO.findById(friend.getFriendId()).isEmpty()) {
             throw new IllegalArgumentException("User Not Found !");
         }
-        int actualUserId = Math.min(friend.getUserId(), friend.getFriendId());
-        int actualFriendId = Math.max(friend.getUserId(), friend.getFriendId());
-        if (friendDAO.findByUserIdAndFriendId(actualUserId, actualFriendId).isPresent()) {
+        if (friendDAO.findByUserIdAndFriendId(friend.getUserId(), friend.getFriendId()).isPresent()
+                || friendDAO.findByUserIdAndFriendId(friend.getFriendId(), friend.getUserId()).isPresent()) {
             throw new IllegalArgumentException("This Friendship Already Exists!");
         }
-        friend.setUserId(actualUserId);
-        friend.setFriendId(actualFriendId);
         friend.setStatus(Status.PENDING);
         friend.setCreatedAt(LocalDateTime.now());
         boolean saved = friendDAO.save(friend);
         if (saved) {
-            int recipientId = (authService.getCurrentUser().getId() == actualUserId) ? actualFriendId : actualUserId;
-            notificationService.createNotification(recipientId, authService.getCurrentUser().getId(), Type.FRIEND_REQUEST, friend.getId());
+            notificationService.createNotification(friend.getFriendId(), authService.getCurrentUser().getId(), Type.FRIEND_REQUEST, friend.getId());
         }
         return saved;
     }
