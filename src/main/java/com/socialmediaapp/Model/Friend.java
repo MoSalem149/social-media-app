@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Builder
 public class Friend {
     private int id;
-    private int user_id;
-    private int friend_id;
+    private int userId;
+    private int friendId;
     private Status status;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }
