@@ -28,7 +28,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
@@ -53,7 +53,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -76,7 +76,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -186,7 +186,7 @@ public class PostDAO implements DAO<Post>{
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .content(rs.getString("content"))
-                        .privacy(rs.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(rs.getString("privacy").toUpperCase()))
                         .imagePath(rs.getString("image_path"))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());

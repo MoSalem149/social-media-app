@@ -8,6 +8,8 @@ import com.socialmediaapp.Util.AppContext;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -244,6 +246,18 @@ public class MainView {
         contentLabel.setWrapText(true);
         contentLabel.setStyle(TEXT_DARK);
         card.getChildren().add(contentLabel);
+        if (post.getImagePath() != null && !post.getImagePath().isBlank()) {
+            try {
+                String path = post.getImagePath();
+                Image image = new Image(path.startsWith("http") || path.startsWith("file:") ? path : new File(path).toURI().toString(), true);
+                ImageView imageView = new ImageView(image);
+                imageView.setPreserveRatio(true);
+                imageView.setFitWidth(420);
+                card.getChildren().add(imageView);
+            } catch (Exception ignored) {
+                // keep post visible even if image cannot be loaded
+            }
+        }
 
         List<Like> likes = AppContext.getLikeService().getAllLikesByPostId(post.getId());
         List<Comment> comments = AppContext.getCommentService().getCommentsByPostId(post.getId());
@@ -442,7 +456,7 @@ public class MainView {
                 if (email == null || email.isBlank()) return;
                 try {
                     User other = AppContext.getUserService().getUserByEmail(email.trim());
-                    Friend friend = Friend.builder().userId(Math.min(currentId, other.getId())).friendId(Math.max(currentId, other.getId())).build();
+                    Friend friend = Friend.builder().userId(currentId).friendId(other.getId()).build();
                     AppContext.getFriendService().createFriend(friend);
                     emailField.clear();
                     refreshFriends();

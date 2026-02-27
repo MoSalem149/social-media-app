@@ -29,7 +29,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -52,7 +52,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -75,7 +75,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -99,7 +99,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -129,9 +129,11 @@ public class FriendDAO implements DAO<Friend>{
 
         // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
-            parameters.add("%" + searchTerm.get().toLowerCase() + "%");
+            sql.append(" WHERE CAST(user_id AS CHAR) LIKE ? OR CAST(friend_id AS CHAR) LIKE ?");
+            countSql.append(" WHERE CAST(user_id AS CHAR) LIKE ? OR CAST(friend_id AS CHAR) LIKE ?");
+            String term = "%" + searchTerm.get().toLowerCase() + "%";
+            parameters.add(term);
+            parameters.add(term);
             hasWhere = true;
         }
 
@@ -145,12 +147,11 @@ public class FriendDAO implements DAO<Friend>{
             hasWhere = true;
         }
 
-        // filter2 (e.g., another id or status)
         if(filter2.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("some_column2 = ?");
-            countSql.append("some_column2 = ?");
+            sql.append("friend_id = ?");
+            countSql.append("friend_id = ?");
             parameters.add(filter2.get());
         }
 
@@ -176,7 +177,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .friendId(rs.getInt("friend_id"))
-                        .status(rs.getObject("status", Status.class))
+                        .status(Status.valueOf(rs.getString("status").toUpperCase()))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
             }
