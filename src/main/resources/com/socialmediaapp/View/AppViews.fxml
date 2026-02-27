@@ -62,7 +62,7 @@
                     </VBox>
                 </Tab>
 
-                <Tab text="Likes & Comments">
+                <Tab text="Likes &amp; Comments">
                     <VBox spacing="10" styleClass="tab-content">
                         <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
                         <HBox spacing="8">
@@ -89,7 +89,7 @@
                     </VBox>
                 </Tab>
 
-                <Tab text="Notifications & Search">
+                <Tab text="Notifications &amp; Search">
                     <VBox spacing="10" styleClass="tab-content">
                         <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
                         <HBox spacing="8">
@@ -103,7 +103,7 @@
                                     <ListView fx:id="notificationsList" VBox.vgrow="ALWAYS"/>
                                 </VBox>
                                 <VBox spacing="6">
-                                    <Label text="Users & Search Results" styleClass="section-label"/>
+                                    <Label text="Users &amp; Search Results" styleClass="section-label"/>
                                     <ListView fx:id="usersList" VBox.vgrow="ALWAYS"/>
                                 </VBox>
                             </items>
