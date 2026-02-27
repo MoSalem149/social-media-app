@@ -74,6 +74,7 @@ public class UserService {
 
             userDAO.delete(user);
             authService.logout();
+            return;
         }
         throw new IllegalArgumentException("Unauthorized !");
     }

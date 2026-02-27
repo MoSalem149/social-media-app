@@ -28,7 +28,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
@@ -53,7 +53,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -76,7 +76,7 @@ public class PostDAO implements DAO<Post>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(resultset.getString("privacy").toUpperCase()))
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -88,6 +88,37 @@ public class PostDAO implements DAO<Post>{
         }
         return posts;
     }
+
+    /** Returns posts from given user IDs (e.g. self + friends) for news feed, newest first. */
+    public List<Post> findFeedByUserIds(java.util.Collection<Integer> userIds) {
+        if (userIds == null || userIds.isEmpty()) return new ArrayList<>();
+        String placeholders = String.join(",", userIds.stream().map(id -> "?").toList());
+        String sql = "SELECT * FROM posts WHERE user_id IN (" + placeholders + ") ORDER BY created_at DESC";
+        List<Post> posts = new ArrayList<>();
+        try (Connection connection = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            int i = 1;
+            for (Integer id : userIds) {
+                ps.setInt(i++, id);
+            }
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                posts.add(Post.builder()
+                        .id(rs.getInt("id"))
+                        .userId(rs.getInt("user_id"))
+                        .content(rs.getString("content"))
+                        .privacy(Privacy.valueOf(rs.getString("privacy").toUpperCase()))
+                        .imagePath(rs.getString("image_path"))
+                        .createdAt(rs.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return posts;
+    }
+
     @Override
     public Page<Post> findAll(int pageNumber, int pageSize, String sortBy, String sortDir,
                               Optional<String> searchTerm,
@@ -106,10 +137,10 @@ public class PostDAO implements DAO<Post>{
         List<Object> parameters = new ArrayList<>();
         boolean hasWhere = false; // track if WHERE is already added
 
-        // searchTerm filter
+        // searchTerm filter (search in post content)
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
+            sql.append(" WHERE LOWER(content) LIKE ?");
+            countSql.append(" WHERE LOWER(content) LIKE ?");
             parameters.add("%" + searchTerm.get().toLowerCase() + "%");
             hasWhere = true;
         }
@@ -128,8 +159,8 @@ public class PostDAO implements DAO<Post>{
         if(postId.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("post_id = ?");
-            countSql.append("post_id = ?");
+            sql.append("id = ?");
+            countSql.append("id = ?");
             parameters.add(postId.get());
         }
 
@@ -155,7 +186,7 @@ public class PostDAO implements DAO<Post>{
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .content(rs.getString("content"))
-                        .privacy(rs.getObject("privacy", Privacy.class))
+                        .privacy(Privacy.valueOf(rs.getString("privacy").toUpperCase()))
                         .imagePath(rs.getString("image_path"))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -181,7 +212,7 @@ public class PostDAO implements DAO<Post>{
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setString(1,post.getContent());
-            preparedStatement.setString(2,post.getPrivacy().name());
+            preparedStatement.setString(2,post.getPrivacy().name().toLowerCase());
             preparedStatement.setString(3,post.getImagePath());
             preparedStatement.setInt(4,post.getId());
             boolean res = preparedStatement.executeUpdate() > 0;
@@ -212,12 +243,12 @@ public class PostDAO implements DAO<Post>{
 
     @Override
     public boolean save(Post post) {
-        String sql = "INSERT INTO POSTS(user_id,content,privacy,image_path,created_at) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO posts (user_id, content, privacy, image_path, created_at) VALUES (?, ?, ?, ?, ?)";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,post.getUserId());
             preparedStatement.setString(2,post.getContent());
-            preparedStatement.setString(3,post.getPrivacy().name());
+            preparedStatement.setString(3,post.getPrivacy().name().toLowerCase());
             preparedStatement.setString(4,post.getImagePath());
             preparedStatement.setObject(5,post.getCreatedAt());
             boolean res = preparedStatement.executeUpdate() > 0;

@@ -29,7 +29,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -52,7 +52,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -64,7 +64,7 @@ public class FriendDAO implements DAO<Friend>{
         return Optional.empty();
     }
     public Optional<Friend> findByUserIdAndFriendId(int userId,int friend_id) {
-        String sql = "SELECT * FROM FRIENDS WHERE user_id = ?, AND friend_id = ?";
+        String sql = "SELECT * FROM friends WHERE user_id = ? AND friend_id = ?";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,userId);
@@ -75,7 +75,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -99,7 +99,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -129,9 +129,11 @@ public class FriendDAO implements DAO<Friend>{
 
         // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
-            parameters.add("%" + searchTerm.get().toLowerCase() + "%");
+            sql.append(" WHERE CAST(user_id AS CHAR) LIKE ? OR CAST(friend_id AS CHAR) LIKE ?");
+            countSql.append(" WHERE CAST(user_id AS CHAR) LIKE ? OR CAST(friend_id AS CHAR) LIKE ?");
+            String term = "%" + searchTerm.get().toLowerCase() + "%";
+            parameters.add(term);
+            parameters.add(term);
             hasWhere = true;
         }
 
@@ -145,12 +147,11 @@ public class FriendDAO implements DAO<Friend>{
             hasWhere = true;
         }
 
-        // filter2 (e.g., another id or status)
         if(filter2.isPresent()){
             sql.append(hasWhere ? " AND " : " WHERE ");
             countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("some_column2 = ?");
-            countSql.append("some_column2 = ?");
+            sql.append("friend_id = ?");
+            countSql.append("friend_id = ?");
             parameters.add(filter2.get());
         }
 
@@ -176,7 +177,7 @@ public class FriendDAO implements DAO<Friend>{
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .friendId(rs.getInt("friend_id"))
-                        .status(rs.getObject("status", Status.class))
+                        .status(Status.valueOf(rs.getString("status").toUpperCase()))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -196,18 +197,19 @@ public class FriendDAO implements DAO<Friend>{
         }
     }
     public List<Friend> findAllByUserId(int user_id) {
-        String sql = "SELECT * FROM FRIENDS WHERE user_id = ?";
+        String sql = "SELECT * FROM friends WHERE user_id = ? OR friend_id = ?";
         List<Friend> friends = new ArrayList<>();
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, user_id);
+            preparedStatement.setInt(2, user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()) {
                 friends.add(Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(Status.valueOf(resultset.getString("status").toUpperCase()))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -218,13 +220,24 @@ public class FriendDAO implements DAO<Friend>{
         }
         return friends;
     }
+
+    /** Returns set of user IDs that are accepted friends of the given user. */
+    public java.util.Set<Integer> findFriendUserIds(int userId) {
+        java.util.Set<Integer> ids = new java.util.HashSet<>();
+        for (Friend f : findAllByUserId(userId)) {
+            if (f.getStatus() == Status.ACCEPTED) {
+                ids.add(f.getUserId() == userId ? f.getFriendId() : f.getUserId());
+            }
+        }
+        return ids;
+    }
     @Override
     public boolean update(Friend friend) {
         String sql = "UPDATE FRIENDS SET friend_id = ?, status = ? WHERE id = ?";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,friend.getFriendId());
-            preparedStatement.setString(2,friend.getStatus().name());
+            preparedStatement.setString(2,friend.getStatus().name().toLowerCase());
             preparedStatement.setInt(3,friend.getId());
             boolean res = preparedStatement.executeUpdate() > 0;
             System.out.println("Friend Updated!");
@@ -259,8 +272,8 @@ public class FriendDAO implements DAO<Friend>{
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,friend.getUserId());
             preparedStatement.setInt(2,friend.getFriendId());
-            preparedStatement.setString(3,friend.getStatus().name());
-            preparedStatement.setObject(5,friend.getCreatedAt());
+            preparedStatement.setString(3,friend.getStatus().name().toLowerCase());
+            preparedStatement.setObject(4,friend.getCreatedAt());
             boolean res = preparedStatement.executeUpdate() > 0;
             System.out.println("Friend Created!");
             return res;

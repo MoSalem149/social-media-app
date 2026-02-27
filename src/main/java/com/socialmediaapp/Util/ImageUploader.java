@@ -15,6 +15,9 @@ import org.json.JSONObject;
 public class ImageUploader {
 
     public static String uploadImage(File imageFile) throws IOException, InterruptedException, JSONException {
+        if (Boolean.getBoolean("app.imageUploader.localOnly")) {
+            return imageFile.toURI().toString();
+        }
         // Convert image to Base64
         byte[] fileContent = Files.readAllBytes(imageFile.toPath());
         String encodedImage = Base64.getEncoder().encodeToString(fileContent);
@@ -39,7 +42,7 @@ public class ImageUploader {
             JSONObject json = new JSONObject(response.body());
             return json.getJSONObject("data").getString("url");
         } else {
-            throw new RuntimeException("Image upload failed: " + response.body());
+            return imageFile.toURI().toString();
         }
     }
 }

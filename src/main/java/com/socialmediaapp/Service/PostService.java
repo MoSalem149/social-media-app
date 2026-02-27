@@ -12,6 +12,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,11 +21,15 @@ public class PostService {
     private final PostDAO postDAO;
     private final CommentDAO commentDAO;
     private final AuthService authService;
-    public PostService(UserDAO userDAO, PostDAO postDAO, CommentDAO commentDAO, AuthService authService){
+    private final com.socialmediaapp.DAO.FriendDAO friendDAO;
+
+    public PostService(UserDAO userDAO, PostDAO postDAO, CommentDAO commentDAO, AuthService authService,
+                       com.socialmediaapp.DAO.FriendDAO friendDAO){
         this.userDAO = userDAO;
         this.postDAO = postDAO;
         this.commentDAO = commentDAO;
         this.authService = authService;
+        this.friendDAO = friendDAO;
     }
 
     public Post getPostById(int id){
@@ -33,6 +38,24 @@ public class PostService {
 
     public List<Post> getAllPosts(){
         return postDAO.findAll();
+    }
+
+    /** News feed: posts from current user + accepted friends, newest first. */
+    public List<Post> getFeedForCurrentUser() {
+        int currentId = authService.getCurrentUser().getId();
+        java.util.Set<Integer> feedUserIds = new java.util.HashSet<>();
+        feedUserIds.add(currentId);
+        feedUserIds.addAll(friendDAO.findFriendUserIds(currentId));
+        List<Post> raw = postDAO.findFeedByUserIds(feedUserIds);
+        List<Post> visible = new ArrayList<>();
+        for (Post post : raw) {
+            if (post.getUserId() == currentId) {
+                visible.add(post);
+            } else if (post.getPrivacy() != com.socialmediaapp.Enum.Privacy.PRIVATE) {
+                visible.add(post);
+            }
+        }
+        return visible;
     }
     public Page<Post> getAllPostsAsPage(int pageNumber, int pageSize, String sortBy, String sortDir,
                                         int userId,int postId){

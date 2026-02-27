@@ -115,24 +115,7 @@ public class UserDAO implements DAO<User>{
             hasWhere = true;
         }
 
-        // filter1 (e.g., user role or some id)
-        if(filter1.isPresent()){
-            sql.append(hasWhere ? " AND " : " WHERE ");
-            countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("some_column1 = ?");
-            countSql.append("some_column1 = ?");
-            parameters.add(filter1.get());
-            hasWhere = true;
-        }
-
-        // filter2 (e.g., another id or status)
-        if(filter2.isPresent()){
-            sql.append(hasWhere ? " AND " : " WHERE ");
-            countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("some_column2 = ?");
-            countSql.append("some_column2 = ?");
-            parameters.add(filter2.get());
-        }
+        // no additional numeric filters for users
 
         // Sorting and Pagination
         sql.append(" ORDER BY ").append(sortBy).append(" ").append(sortDir);

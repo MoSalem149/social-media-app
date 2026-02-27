@@ -82,8 +82,8 @@ public class LikeDAO implements DAO<Like>{
 
         // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
+            sql.append(" WHERE CAST(post_id AS CHAR) LIKE ?");
+            countSql.append(" WHERE CAST(post_id AS CHAR) LIKE ?");
             parameters.add("%" + searchTerm.get().toLowerCase() + "%");
             hasWhere = true;
         }
@@ -152,6 +152,7 @@ public class LikeDAO implements DAO<Like>{
         List<Like> likes = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 likes.add(Like.builder()
@@ -172,6 +173,7 @@ public class LikeDAO implements DAO<Like>{
         List<Like> likes = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,post_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 likes.add(Like.builder()

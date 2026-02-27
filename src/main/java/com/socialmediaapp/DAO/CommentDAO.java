@@ -82,8 +82,8 @@ public class CommentDAO implements DAO<Comment>{
 
         // searchTerm filter
         if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
+            sql.append(" WHERE LOWER(content) LIKE ?");
+            countSql.append(" WHERE LOWER(content) LIKE ?");
             parameters.add("%" + searchTerm.get().toLowerCase() + "%");
             hasWhere = true;
         }
@@ -154,6 +154,7 @@ public class CommentDAO implements DAO<Comment>{
         List<Comment> comments = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 comments.add(Comment.builder()
@@ -175,6 +176,7 @@ public class CommentDAO implements DAO<Comment>{
         List<Comment> comments = new ArrayList<>();
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,post_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
                 comments.add(Comment.builder()
