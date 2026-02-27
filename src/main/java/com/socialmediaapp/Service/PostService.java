@@ -42,8 +42,12 @@ public class PostService {
     public boolean updatePost(Post post, Optional<File> imageFile) throws JSONException, IOException, InterruptedException {
         if(userDAO.findById(post.getUserId()).isPresent() && authService.getCurrentUser().getId() == post.getUserId()){
             if(postDAO.findById(post.getId()).isPresent()){
-                if(imageFile.isPresent()){
-                    post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
+                if (imageFile.isPresent()) {
+                    try {
+                        post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
+                    } catch (Exception e) {
+                        System.out.println("Post image update failed, keeping old image: " + e.getMessage());
+                    }
                 }
                 postDAO.update(post);
                 return true;
@@ -67,8 +71,12 @@ public class PostService {
     public boolean createPost(Post post,Optional<File> imageFile) throws JSONException, IOException, InterruptedException {
         post.setCreatedAt(LocalDateTime.now());
         post.setUserId(authService.getCurrentUser().getId());
-        if(imageFile.isPresent()){
-            post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
+        if (imageFile.isPresent()) {
+            try {
+                post.setImagePath(ImageUploader.uploadImage(imageFile.get()));
+            } catch (Exception e) {
+                System.out.println("Post image upload failed, creating text-only post: " + e.getMessage());
+            }
         }
         return postDAO.save(post);
     }

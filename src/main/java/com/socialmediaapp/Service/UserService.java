@@ -44,8 +44,12 @@ public class UserService {
     }
     public boolean updateUser(User user, Optional<File> imageFile) throws JSONException, IOException, InterruptedException {
         if(user.getId() == authService.getCurrentUser().getId() && userDAO.findById(user.getId()).isPresent()){
-            if(imageFile.isPresent()){
-                user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+            if (imageFile.isPresent()) {
+                try {
+                    user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+                } catch (Exception e) {
+                    System.out.println("Profile image update failed, keeping old image: " + e.getMessage());
+                }
             }
             return userDAO.update(user);
         }

@@ -10,7 +10,14 @@ import com.socialmediaapp.Util.Page;
 import com.socialmediaapp.Util.ServiceRegistry;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.fxml.FXMLLoader;
+import javafx.stage.Stage;
+import javafx.stage.FileChooser;
+import com.socialmediaapp.SocialMediaApplication;
+import java.io.IOException;
+import java.io.File;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,11 +57,16 @@ public class AppControllers {
 
     @FXML private Label currentUserLabel;
     @FXML private Label statusLabel;
+    @FXML private Label profileImageLabel;
+    @FXML private Label postImageLabel;
 
     @FXML private ListView<String> feedList;
     @FXML private ListView<String> friendsList;
     @FXML private ListView<String> notificationsList;
     @FXML private ListView<String> usersList;
+
+    private File profileImageFile;
+    private File postImageFile;
 
     @FXML
     public void initialize() {
@@ -69,6 +81,40 @@ public class AppControllers {
         privacyCombo.setItems(FXCollections.observableArrayList(Privacy.values()));
         privacyCombo.setValue(Privacy.PUBLIC);
         refreshAll();
+    }
+
+    @FXML
+    private void onChooseProfileImage() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select profile picture");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        File file = chooser.showOpenDialog(statusLabel.getScene().getWindow());
+        if (file != null) {
+            profileImageFile = file;
+            profileImageLabel.setText(file.getName());
+        } else {
+            profileImageFile = null;
+            profileImageLabel.setText("No image selected");
+        }
+    }
+
+    @FXML
+    private void onChoosePostImage() {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Select post image");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg")
+        );
+        File file = chooser.showOpenDialog(statusLabel.getScene().getWindow());
+        if (file != null) {
+            postImageFile = file;
+            postImageLabel.setText(file.getName());
+        } else {
+            postImageFile = null;
+            postImageLabel.setText("No image selected");
+        }
     }
 
     @FXML
@@ -102,8 +148,23 @@ public class AppControllers {
     @FXML
     private void onLogout() {
         authService.logout();
-        refreshAll();
-        setStatus("Logged out.");
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    SocialMediaApplication.class.getResource("/com/socialmediaapp/View/AuthView.fxml")
+            );
+            Scene scene = new Scene(loader.load(), 900, 600);
+            scene.getStylesheets().add(
+                    SocialMediaApplication.class
+                            .getResource("/com/socialmediaapp/Style/AppStyle.css")
+                            .toExternalForm()
+            );
+            Stage stage = (Stage) statusLabel.getScene().getWindow();
+            stage.setTitle("Social Media Application - Sign in");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            setStatus("Logout failed: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -112,7 +173,7 @@ public class AppControllers {
             User current = requireCurrentUser();
             current.setName(profileNameField.getText().trim());
             current.setBio(profileBioField.getText().trim());
-            userService.updateUser(current, Optional.empty());
+            userService.updateUser(current, Optional.ofNullable(profileImageFile));
             setStatus("Profile updated.");
             refreshAll();
         } catch (Exception e) {
@@ -129,9 +190,13 @@ public class AppControllers {
                     .privacy(privacyCombo.getValue())
                     .createdAt(LocalDateTime.now())
                     .build();
-            postService.createPost(post, Optional.empty());
+            postService.createPost(post, Optional.ofNullable(postImageFile));
             setStatus("Post created.");
             postContentField.clear();
+            postImageFile = null;
+            if (postImageLabel != null) {
+                postImageLabel.setText("No image selected");
+            }
             refreshFeed();
         } catch (Exception e) {
             setStatus("Create post failed: " + e.getMessage());

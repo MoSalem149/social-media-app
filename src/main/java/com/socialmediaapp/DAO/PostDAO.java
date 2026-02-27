@@ -24,11 +24,13 @@ public class PostDAO implements DAO<Post>{
             preparedStatement.setInt(1,id);
             ResultSet resultset = preparedStatement.executeQuery();
             if(resultset.next()){
+                String privacyRaw = resultset.getString("privacy");
+                Privacy privacy = privacyRaw == null ? Privacy.PUBLIC : Privacy.valueOf(privacyRaw.toUpperCase());
                 Post post = Post.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(privacy)
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
@@ -49,11 +51,13 @@ public class PostDAO implements DAO<Post>{
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
+                String privacyRaw = resultset.getString("privacy");
+                Privacy privacy = privacyRaw == null ? Privacy.PUBLIC : Privacy.valueOf(privacyRaw.toUpperCase());
                 posts.add(Post.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(privacy)
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -72,11 +76,13 @@ public class PostDAO implements DAO<Post>{
             preparedStatement.setInt(1, user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()) {
+                String privacyRaw = resultset.getString("privacy");
+                Privacy privacy = privacyRaw == null ? Privacy.PUBLIC : Privacy.valueOf(privacyRaw.toUpperCase());
                 posts.add(Post.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .content(resultset.getString("content"))
-                        .privacy(resultset.getObject("privacy", Privacy.class))
+                        .privacy(privacy)
                         .imagePath(resultset.getString("image_path"))
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -151,11 +157,13 @@ public class PostDAO implements DAO<Post>{
             ResultSet rs = stmt.executeQuery();
             List<Post> posts = new ArrayList<>();
             while(rs.next()){
+                String privacyRaw = rs.getString("privacy");
+                Privacy privacy = privacyRaw == null ? Privacy.PUBLIC : Privacy.valueOf(privacyRaw.toUpperCase());
                 posts.add(Post.builder()
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .content(rs.getString("content"))
-                        .privacy(rs.getObject("privacy", Privacy.class))
+                        .privacy(privacy)
                         .imagePath(rs.getString("image_path"))
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
@@ -212,7 +220,7 @@ public class PostDAO implements DAO<Post>{
 
     @Override
     public boolean save(Post post) {
-        String sql = "INSERT INTO POSTS(user_id,content,privacy,image_path,created_at) VALUES(?,?,?,?,?,?)";
+        String sql = "INSERT INTO POSTS(user_id,content,privacy,image_path,created_at) VALUES(?,?,?,?,?)";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,post.getUserId());

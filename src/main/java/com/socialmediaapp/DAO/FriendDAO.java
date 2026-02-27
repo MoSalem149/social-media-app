@@ -25,11 +25,13 @@ public class FriendDAO implements DAO<Friend>{
             preparedStatement.setInt(1,id);
             ResultSet resultset = preparedStatement.executeQuery();
             if(resultset.next()){
+                String statusRaw = resultset.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 Friend friend = Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -48,11 +50,13 @@ public class FriendDAO implements DAO<Friend>{
             preparedStatement.setInt(1,friend_id);
             ResultSet resultset = preparedStatement.executeQuery();
             if(resultset.next()){
+                String statusRaw = resultset.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 Friend friend = Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -71,11 +75,13 @@ public class FriendDAO implements DAO<Friend>{
             preparedStatement.setInt(2,friend_id);
             ResultSet resultset = preparedStatement.executeQuery();
             if(resultset.next()){
+                String statusRaw = resultset.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 Friend friend = Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build();
                 return Optional.of(friend);
@@ -95,11 +101,13 @@ public class FriendDAO implements DAO<Friend>{
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()){
+                String statusRaw = resultset.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 friends.add(Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -172,11 +180,13 @@ public class FriendDAO implements DAO<Friend>{
             ResultSet rs = stmt.executeQuery();
             List<Friend> friends = new ArrayList<>();
             while(rs.next()){
+                String statusRaw = rs.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 friends.add(Friend.builder()
                         .id(rs.getInt("id"))
                         .userId(rs.getInt("user_id"))
                         .friendId(rs.getInt("friend_id"))
-                        .status(rs.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(rs.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -203,11 +213,13 @@ public class FriendDAO implements DAO<Friend>{
             preparedStatement.setInt(1, user_id);
             ResultSet resultset = preparedStatement.executeQuery();
             while (resultset.next()) {
+                String statusRaw = resultset.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
                 friends.add(Friend.builder()
                         .id(resultset.getInt("id"))
                         .userId(resultset.getInt("user_id"))
                         .friendId(resultset.getInt("friend_id"))
-                        .status(resultset.getObject("status", Status.class))
+                        .status(status)
                         .createdAt(resultset.getObject("created_at", LocalDateTime.class))
                         .build());
             }
@@ -260,7 +272,7 @@ public class FriendDAO implements DAO<Friend>{
             preparedStatement.setInt(1,friend.getUserId());
             preparedStatement.setInt(2,friend.getFriendId());
             preparedStatement.setString(3,friend.getStatus().name());
-            preparedStatement.setObject(5,friend.getCreatedAt());
+            preparedStatement.setObject(4,friend.getCreatedAt());
             boolean res = preparedStatement.executeUpdate() > 0;
             System.out.println("Friend Created!");
             return res;

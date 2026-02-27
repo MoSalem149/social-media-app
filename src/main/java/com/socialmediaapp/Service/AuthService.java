@@ -43,8 +43,12 @@ public class AuthService {
         }
         user.setPassword(PasswordHashing.hashPassword(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
-        if(imageFile.isPresent()){
-            user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+        if (imageFile.isPresent()) {
+            try {
+                user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
+            } catch (Exception e) {
+                System.out.println("Profile image upload failed, continuing without image: " + e.getMessage());
+            }
         }
         userDAO.save(user);
         return true;

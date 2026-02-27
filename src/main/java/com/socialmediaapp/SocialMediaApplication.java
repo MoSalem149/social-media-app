@@ -18,11 +18,11 @@ public class SocialMediaApplication extends Application {
     public void start(Stage stage) throws IOException {
         initializeServices();
 
-        FXMLLoader fxmlLoader = new FXMLLoader(SocialMediaApplication.class.getResource("/com/socialmediaapp/View/AppViews.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1150, 760);
+        FXMLLoader fxmlLoader = new FXMLLoader(SocialMediaApplication.class.getResource("/com/socialmediaapp/View/AuthView.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 900, 600);
         scene.getStylesheets().add(SocialMediaApplication.class.getResource("/com/socialmediaapp/Style/AppStyle.css").toExternalForm());
 
-        stage.setTitle("Social Media Application");
+        stage.setTitle("Social Media Application - Sign in");
         stage.setScene(scene);
         stage.show();
     }

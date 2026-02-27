@@ -7,9 +7,13 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.socialmediaapp.Controller.AppControllers">
     <top>
-        <VBox spacing="8" styleClass="top-bar">
+        <VBox spacing="4" styleClass="top-bar">
             <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
-            <Label fx:id="currentUserLabel" text="Current user: Guest" styleClass="title-label"/>
+            <HBox spacing="10">
+                <Label fx:id="currentUserLabel" text="Current user: Guest" styleClass="title-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Logout" onAction="#onLogout" styleClass="primary-button"/>
+            </HBox>
             <Label fx:id="statusLabel" text="Welcome to Social Media App" styleClass="status-label"/>
         </VBox>
     </top>
@@ -17,26 +21,6 @@
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab text="Auth">
-                    <VBox spacing="10" styleClass="tab-content">
-                        <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
-                        <Label text="Register" styleClass="section-label"/>
-                        <HBox spacing="8">
-                            <TextField fx:id="registerNameField" promptText="Name"/>
-                            <TextField fx:id="registerEmailField" promptText="Email"/>
-                            <PasswordField fx:id="registerPasswordField" promptText="Password"/>
-                            <Button text="Register" onAction="#onRegister"/>
-                        </HBox>
-                        <Label text="Login" styleClass="section-label"/>
-                        <HBox spacing="8">
-                            <TextField fx:id="loginEmailField" promptText="Email"/>
-                            <PasswordField fx:id="loginPasswordField" promptText="Password"/>
-                            <Button text="Login" onAction="#onLogin"/>
-                            <Button text="Logout" onAction="#onLogout"/>
-                        </HBox>
-                    </VBox>
-                </Tab>
-
                 <Tab text="Profile">
                     <VBox spacing="10" styleClass="tab-content">
                         <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
@@ -44,6 +28,10 @@
                             <TextField fx:id="profileNameField" promptText="Display Name"/>
                             <TextField fx:id="profileBioField" promptText="Bio" HBox.hgrow="ALWAYS"/>
                             <Button text="Update Profile" onAction="#onUpdateProfile"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <Button text="Change Profile Picture" onAction="#onChooseProfileImage"/>
+                            <Label fx:id="profileImageLabel" text="No image selected"/>
                         </HBox>
                         <Button text="Refresh All Data" onAction="#onRefreshData"/>
                     </VBox>
@@ -56,6 +44,10 @@
                             <TextArea fx:id="postContentField" promptText="What's on your mind?" prefRowCount="2" HBox.hgrow="ALWAYS"/>
                             <ComboBox fx:id="privacyCombo" prefWidth="150"/>
                             <Button text="Create Post" onAction="#onCreatePost"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <Button text="Attach Image" onAction="#onChoosePostImage"/>
+                            <Label fx:id="postImageLabel" text="No image selected"/>
                         </HBox>
                         <Label text="News Feed" styleClass="section-label"/>
                         <ListView fx:id="feedList" VBox.vgrow="ALWAYS"/>
