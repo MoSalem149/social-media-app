@@ -3,6 +3,7 @@ package com.socialmediaapp.Service;
 import com.socialmediaapp.DAO.LikeDAO;
 import com.socialmediaapp.DAO.PostDAO;
 import com.socialmediaapp.DAO.UserDAO;
+import com.socialmediaapp.Enum.Type;
 import com.socialmediaapp.Model.Like;
 import com.socialmediaapp.Util.Page;
 
@@ -15,12 +16,15 @@ public class LikeService {
     private final PostDAO postDAO;
     private final LikeDAO likeDAO;
     private final AuthService authService;
+    private final NotificationService notificationService;
 
-    public LikeService(UserDAO userDAO, PostDAO postDAO, LikeDAO likeDAO, AuthService authService) {
+    public LikeService(UserDAO userDAO, PostDAO postDAO, LikeDAO likeDAO, AuthService authService,
+                       NotificationService notificationService) {
         this.userDAO = userDAO;
         this.postDAO = postDAO;
         this.likeDAO = likeDAO;
         this.authService = authService;
+        this.notificationService = notificationService;
     }
 
     public Like getLikeById(int id){
@@ -56,7 +60,12 @@ public class LikeService {
         if(like.getUserId() == authService.getCurrentUser().getId() && userDAO.findById(like.getUserId()).isPresent()){
             if(postDAO.findById(like.getPostId()).isPresent()){
                 like.setCreatedAt(LocalDateTime.now());
-                return likeDAO.save(like);
+                boolean saved = likeDAO.save(like);
+                if (saved) {
+                    postDAO.findById(like.getPostId()).ifPresent(post ->
+                            notificationService.createNotification(post.getUserId(), like.getUserId(), Type.LIKE, like.getPostId()));
+                }
+                return saved;
             }else throw new IllegalArgumentException("Post Not Found!");
         }
         throw new IllegalArgumentException("Unauthorized !");

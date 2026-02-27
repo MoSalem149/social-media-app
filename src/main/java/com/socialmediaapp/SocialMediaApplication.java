@@ -1,22 +1,48 @@
 package com.socialmediaapp;
 
-import com.socialmediaapp.DAO.*;
-import com.socialmediaapp.Service.*;
 import com.socialmediaapp.Util.DDL;
-import com.socialmediaapp.Util.UserSession;
+import com.socialmediaapp.Util.AppContext;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class SocialMediaApplication {
+public class SocialMediaApplication extends Application {
+
+    private static Stage primaryStage;
+
+    public static Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    @Override
+    public void start(Stage stage) {
+        primaryStage = stage;
+        primaryStage.setTitle("Social Media App");
+        primaryStage.setMinWidth(800);
+        primaryStage.setMinHeight(600);
+        showLoginScene();
+        primaryStage.show();
+    }
+
+    public static void showLoginScene() {
+        Scene scene = new Scene(new com.socialmediaapp.View.LoginView().getRoot(), 500, 400);
+        primaryStage.setScene(scene);
+    }
+
+    public static void showRegisterScene() {
+        Scene scene = new Scene(new com.socialmediaapp.View.RegisterView().getRoot(), 500, 520);
+        primaryStage.setScene(scene);
+    }
+
+    public static void showMainScene() {
+        Scene scene = new Scene(new com.socialmediaapp.View.MainView().getRoot(), 900, 650);
+        primaryStage.setScene(scene);
+    }
 
     public static void main(String[] args) {
         DDL.createDatabase();
         DDL.createTables();
-
-        AuthService authService = new AuthService(UserSession.getInstance(),new UserDAO());
-        UserService userService = new UserService(new UserDAO(),new FriendDAO(),new PostDAO(),new CommentDAO(),new LikeDAO(),authService);
-        PostService postService = new PostService(new UserDAO(),new PostDAO(),new CommentDAO(),authService);
-        CommentService commentService = new CommentService(new UserDAO(),new CommentDAO(),new PostDAO(),authService);
-        FriendService friendService = new FriendService(new FriendDAO(),new UserDAO(),authService);
-        LikeService likeService = new LikeService(new UserDAO(),new PostDAO(),new LikeDAO(),authService);
-
+        AppContext.init();
+        Application.launch(args);
     }
 }

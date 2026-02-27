@@ -20,7 +20,7 @@ public class NotificationDAO implements DAO<Notification> {
                 .id(rs.getInt("id"))
                 .userId(rs.getInt("user_id"))
                 .senderId(rs.getInt("sender_id"))
-                .type(rs.getObject("type", Type.class))
+                .type(Type.valueOf(rs.getString("type").toUpperCase()))
                 .referenceId(rs.getInt("reference_id"))
                 .read(rs.getBoolean("is_read"))
                 .createdAt(rs.getObject("created_at", LocalDateTime.class))
@@ -29,7 +29,7 @@ public class NotificationDAO implements DAO<Notification> {
 
     @Override
     public Optional<Notification> findById(int id) {
-        String sql = "SELECT * FROM NOTIFICATIONS WHERE id = ?";
+        String sql = "SELECT * FROM notifications WHERE id = ?";
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -47,7 +47,7 @@ public class NotificationDAO implements DAO<Notification> {
 
     @Override
     public List<Notification> findAll() {
-        String sql = "SELECT * FROM NOTIFICATIONS";
+        String sql = "SELECT * FROM notifications";
         List<Notification> notifications = new ArrayList<>();
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
@@ -66,7 +66,7 @@ public class NotificationDAO implements DAO<Notification> {
     }
 
     public List<Notification> findAllByUserId(int userId) {
-        String sql = "SELECT * FROM NOTIFICATIONS WHERE user_id = ? ORDER BY created_at DESC";
+        String sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
         List<Notification> notifications = new ArrayList<>();
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
@@ -88,9 +88,9 @@ public class NotificationDAO implements DAO<Notification> {
     @Override
     public boolean save(Notification notification) {
         String sql = """
-                INSERT INTO NOTIFICATIONS
-                (user_id, sender_id, type, reference_id, is_read, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO notifications
+                (user_id, sender_id, type, reference_id, is_read)
+                VALUES (?, ?, ?, ?, ?)
                 """;
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
@@ -98,10 +98,9 @@ public class NotificationDAO implements DAO<Notification> {
 
             ps.setInt(1, notification.getUserId());
             ps.setInt(2, notification.getSenderId());
-            ps.setString(3, notification.getType().name());
+            ps.setString(3, notification.getType().name().toLowerCase());
             ps.setInt(4, notification.getReferenceId());
             ps.setBoolean(5, notification.isRead());
-            ps.setObject(6, notification.getCreatedAt());
 
             boolean res = ps.executeUpdate() > 0;
             System.out.println("Notification Created!");
@@ -116,7 +115,7 @@ public class NotificationDAO implements DAO<Notification> {
 
     @Override
     public boolean update(Notification notification) {
-        String sql = "UPDATE NOTIFICATIONS SET is_read = ? WHERE id = ?";
+        String sql = "UPDATE notifications SET is_read = ? WHERE id = ?";
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -136,7 +135,7 @@ public class NotificationDAO implements DAO<Notification> {
     }
 
     public boolean markAllAsRead(int userId) {
-        String sql = "UPDATE NOTIFICATIONS SET is_read = true WHERE user_id = ?";
+        String sql = "UPDATE notifications SET is_read = true WHERE user_id = ?";
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -157,7 +156,7 @@ public class NotificationDAO implements DAO<Notification> {
     @Override
     public boolean delete(Notification notification) {
 
-        String sql = "DELETE FROM NOTIFICATIONS WHERE id = ?";
+        String sql = "DELETE FROM notifications WHERE id = ?";
 
         try (Connection connection = DBConnection.getAppDataSource().getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {

@@ -47,6 +47,9 @@ public class AuthService {
             user.setProfilePic(ImageUploader.uploadImage(imageFile.get()));
         }
         userDAO.save(user);
+        // Load saved user from DB (with generated id) and set as current user so main screen works
+        User saved = userDAO.findByEmail(user.getEmail()).orElseThrow(() -> new IllegalStateException("User not found after save"));
+        setCurrentUser(saved);
         return true;
     }
 }

@@ -89,7 +89,9 @@ CREATE TABLE notifications (
 );
 
 -- ================================================
--- Sample Data for Testing
+-- Sample Data for Testing (optional)
+-- Passwords here are plain text; for secure login use
+-- the app's Register screen (passwords are hashed there).
 -- ================================================
 INSERT INTO users (name, email, password, bio) VALUES
 ('Mohamed Salem', 'salem@test.com', '123456', 'Java Developer'),
