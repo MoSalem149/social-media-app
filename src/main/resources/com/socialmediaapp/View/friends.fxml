@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.socialmediaapp.Controller.FriendsController">
+    <top>
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="backButton" text="Back" onAction="#goBack"/>
+                <TextField fx:id="searchField" promptText="Search users..."/>
+                <Button text="Search" onAction="#handleSearch"/>
+            </HBox>
+            <Label text="Friend Requests"/>
+            <ListView fx:id="requestsListView" prefHeight="100"/>
+            <Label text="Friends"/>
+        </VBox>
+    </top>
+    <center>
+        <ListView fx:id="friendsListView"/>
+    </center>
+</BorderPane>

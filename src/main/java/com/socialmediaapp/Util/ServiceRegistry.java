@@ -13,19 +13,22 @@ public class ServiceRegistry {
     private final CommentService commentService;
     private final FriendService friendService;
     private final LikeService likeService;
+    private final NotificationService notificationService;
 
     private ServiceRegistry(AuthService authService,
                             UserService userService,
                             PostService postService,
                             CommentService commentService,
                             FriendService friendService,
-                            LikeService likeService) {
+                            LikeService likeService,
+                            NotificationService notificationService) {
         this.authService = authService;
         this.userService = userService;
         this.postService = postService;
         this.commentService = commentService;
         this.friendService = friendService;
         this.likeService = likeService;
+        this.notificationService = notificationService;
     }
 
     public static void initialize(AuthService authService,
@@ -33,8 +36,9 @@ public class ServiceRegistry {
                                   PostService postService,
                                   CommentService commentService,
                                   FriendService friendService,
-                                  LikeService likeService) {
-        instance = new ServiceRegistry(authService, userService, postService, commentService, friendService, likeService);
+                                  LikeService likeService,
+                                  NotificationService notificationService) {
+        instance = new ServiceRegistry(authService, userService, postService, commentService, friendService, likeService, notificationService);
     }
 
     public static ServiceRegistry getInstance() {

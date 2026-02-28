@@ -78,4 +78,14 @@ public class FriendService {
         friend.setCreatedAt(LocalDateTime.now());
         return friendDAO.save(friend);
     }
+    public List<Friend> getAllFriendshipsForCurrentUser() {
+        int currentUserId = authService.getCurrentUser().getId();
+        return friendDAO.findAllFriendshipsForUser(currentUserId);
+    }
+
+    public List<Friend> getPendingRequestsForCurrentUser() {
+        int currentUserId = authService.getCurrentUser().getId();
+        return friendDAO.findPendingRequestsForUser(currentUserId);
+    }
+
 }

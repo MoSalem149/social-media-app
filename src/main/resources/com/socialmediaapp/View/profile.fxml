@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.socialmediaapp.Controller.ProfileController">
+    <top>
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="backButton" text="Back" onAction="#goBack"/>
+            <Button fx:id="editProfileButton" text="Edit Profile" onAction="#handleEditProfile"/>
+            <Button fx:id="addFriendButton" text="Add Friend" onAction="#handleAddFriend"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="10" alignment="TOP_CENTER">
+            <ImageView fx:id="profilePic" fitHeight="100" fitWidth="100"/>
+            <Label fx:id="nameLabel"/>
+            <Label fx:id="emailLabel"/>
+            <Label fx:id="bioLabel"/>
+            <Label text="Posts:"/>
+            <ListView fx:id="userPostsListView" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+</BorderPane>

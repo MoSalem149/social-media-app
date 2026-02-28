@@ -31,12 +31,16 @@ public class CommentService {
     }
 
     public Page<Comment> getAllCommentsAsPage(int pageNumber, int pageSize, String sortBy, String sortDir,
-                                              int userId,int postId){
-        return commentDAO.findAll(pageNumber,pageSize,sortBy,sortDir, Optional.empty(),Optional.of(userId),Optional.of(postId));
+                                              int userId, int postId) {
+        Optional<Integer> userFilter = userId > 0 ? Optional.of(userId) : Optional.empty();
+        Optional<Integer> postFilter = postId > 0 ? Optional.of(postId) : Optional.empty();
+        return commentDAO.findAll(pageNumber, pageSize, sortBy, sortDir, Optional.empty(), userFilter, postFilter);
     }
 
     public boolean updateComment(Comment comment){
-        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getId()).isPresent()){
+        if(comment.getUserId() == authService.getCurrentUser().getId()
+                && postDAO.findById(comment.getPostId()).isPresent()
+                && userDAO.findById(comment.getUserId()).isPresent()){
            if(commentDAO.findById(comment.getId()).isPresent()){
                return commentDAO.update(comment);
            }else throw new IllegalArgumentException("Comment Not Found!");
@@ -45,7 +49,9 @@ public class CommentService {
     }
 
     public boolean deleteComment(Comment comment){
-        if(comment.getUserId() == authService.getCurrentUser().getId() && postDAO.findById(comment.getPostId()).isPresent() && userDAO.findById(comment.getId()).isPresent()){
+        if(comment.getUserId() == authService.getCurrentUser().getId()
+                && postDAO.findById(comment.getPostId()).isPresent()
+                && userDAO.findById(comment.getUserId()).isPresent()){
             if(commentDAO.findById(comment.getId()).isPresent()){
                 return commentDAO.delete(comment);
             }else throw new IllegalArgumentException("Comment Not Found!");

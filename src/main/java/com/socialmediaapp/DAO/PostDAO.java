@@ -112,10 +112,10 @@ public class PostDAO implements DAO<Post>{
         List<Object> parameters = new ArrayList<>();
         boolean hasWhere = false; // track if WHERE is already added
 
-        // searchTerm filter
-        if(searchTerm.isPresent() && !searchTerm.get().isBlank()){
-            sql.append(" WHERE LOWER(name) LIKE ?");
-            countSql.append(" WHERE LOWER(name) LIKE ?");
+        // searchTerm filter (search in content)
+        if (searchTerm.isPresent() && !searchTerm.get().isBlank()) {
+            sql.append(" WHERE LOWER(content) LIKE ?");
+            countSql.append(" WHERE LOWER(content) LIKE ?");
             parameters.add("%" + searchTerm.get().toLowerCase() + "%");
             hasWhere = true;
         }
@@ -130,14 +130,7 @@ public class PostDAO implements DAO<Post>{
             hasWhere = true;
         }
 
-        // filter2 (e.g., another id or status)
-        if(postId.isPresent()){
-            sql.append(hasWhere ? " AND " : " WHERE ");
-            countSql.append(hasWhere ? " AND " : " WHERE ");
-            sql.append("post_id = ?");
-            countSql.append("post_id = ?");
-            parameters.add(postId.get());
-        }
+        // filter2 is currently unused for posts
 
         // Sorting and Pagination
         sql.append(" ORDER BY ").append(sortBy).append(" ").append(sortDir);

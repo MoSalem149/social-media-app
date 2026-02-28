@@ -35,8 +35,10 @@ public class PostService {
         return postDAO.findAll();
     }
     public Page<Post> getAllPostsAsPage(int pageNumber, int pageSize, String sortBy, String sortDir,
-                                        int userId,int postId){
-        return postDAO.findAll(pageNumber,pageSize,sortBy,sortDir, Optional.empty(),Optional.of(userId),Optional.of(postId));
+                                        int userId, int postId) {
+        Optional<Integer> userFilter = userId > 0 ? Optional.of(userId) : Optional.empty();
+        // Currently we don't filter by a specific post id in paged queries
+        return postDAO.findAll(pageNumber, pageSize, sortBy, sortDir, Optional.empty(), userFilter, Optional.empty());
     }
 
     public boolean updatePost(Post post, Optional<File> imageFile) throws JSONException, IOException, InterruptedException {

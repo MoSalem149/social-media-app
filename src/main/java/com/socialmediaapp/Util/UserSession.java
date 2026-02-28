@@ -6,14 +6,9 @@ import lombok.Setter;
 
 public class UserSession {
     private static final UserSession instance = new UserSession();
-    @Getter
-    @Setter
+    @Getter @Setter
     private User loggedInUser;
-    private UserSession(){}
-    public static UserSession getInstance(){
-        return instance;
-    }
-    public void clearSession(){
-        loggedInUser = null;
-    }
+    private UserSession() {}
+    public static UserSession getInstance() { return instance; }
+    public void clearSession() { loggedInUser = null; }
 }

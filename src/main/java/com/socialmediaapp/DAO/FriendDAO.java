@@ -68,7 +68,7 @@ public class FriendDAO implements DAO<Friend>{
         return Optional.empty();
     }
     public Optional<Friend> findByUserIdAndFriendId(int userId,int friend_id) {
-        String sql = "SELECT * FROM FRIENDS WHERE user_id = ?, AND friend_id = ?";
+        String sql = "SELECT * FROM FRIENDS WHERE user_id = ? AND friend_id = ?";
         try(Connection connection = DBConnection.getAppDataSource().getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(sql)){
             preparedStatement.setInt(1,userId);
@@ -116,6 +116,56 @@ public class FriendDAO implements DAO<Friend>{
             e.printStackTrace();
         }
         return friends;
+    }
+    public List<Friend> findAllFriendshipsForUser(int userId) {
+        String sql = "SELECT * FROM FRIENDS WHERE user_id = ? OR friend_id = ?";
+        List<Friend> friends = new ArrayList<>();
+        try (Connection conn = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String statusRaw = rs.getString("status");
+                Status status = statusRaw == null ? Status.PENDING : Status.valueOf(statusRaw.toUpperCase());
+                friends.add(Friend.builder()
+                        .id(rs.getInt("id"))
+                        .userId(rs.getInt("user_id"))
+                        .friendId(rs.getInt("friend_id"))
+                        .status(status)
+                        .createdAt(rs.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return friends;
+    }
+
+    /**
+     * Find all pending friend requests where the given user is the friend_id.
+     */
+    public List<Friend> findPendingRequestsForUser(int userId) {
+        String sql = "SELECT * FROM FRIENDS WHERE friend_id = ? AND status = ?";
+        List<Friend> requests = new ArrayList<>();
+        try (Connection conn = DBConnection.getAppDataSource().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setString(2, Status.PENDING.name());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                requests.add(Friend.builder()
+                        .id(rs.getInt("id"))
+                        .userId(rs.getInt("user_id"))
+                        .friendId(rs.getInt("friend_id"))
+                        .status(Status.PENDING)
+                        .createdAt(rs.getObject("created_at", LocalDateTime.class))
+                        .build());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return requests;
     }
     @Override
     public Page<Friend> findAll(int pageNumber, int pageSize, String sortBy, String sortDir,

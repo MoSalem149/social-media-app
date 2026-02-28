@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.socialmediaapp.Controller.CommentsController">
+    <top>
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="backButton" text="Back" onAction="#goBack"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="10">
+            <ListView fx:id="commentListView" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="5">
+                <TextArea fx:id="newCommentText" promptText="Write a comment..." HBox.hgrow="ALWAYS"/>
+                <Button text="Post" onAction="#handleAddComment"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

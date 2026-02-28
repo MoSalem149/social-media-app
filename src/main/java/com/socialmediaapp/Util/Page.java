@@ -19,4 +19,6 @@ public class Page<T> {
         this.totalPages = (int) Math.ceil((double) totalElements / pageSize);
     }
 
+    public boolean isFirst() { return pageNumber == 0; }
+    public boolean isLast() { return pageNumber >= totalPages - 1; }
 }

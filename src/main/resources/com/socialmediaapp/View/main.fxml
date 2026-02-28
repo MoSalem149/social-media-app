@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.socialmediaapp.Controller.MainController">
+    <top>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Profile" onAction="#goToProfile"/>
+            <Button text="Friends" onAction="#goToFriends"/>
+            <Button text="Logout" onAction="#logout"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="10">
+            <HBox spacing="5">
+                <TextArea fx:id="newPostContent" promptText="What's on your mind?" HBox.hgrow="ALWAYS"/>
+                <Button fx:id="chooseImageButton" text="Choose Image" onAction="#handleChooseImage"/>
+                <Label fx:id="imageFileName" text="No file chosen"/>
+            </HBox>
+            <Button text="Post" onAction="#handleCreatePost"/>
+            <ListView fx:id="postListView" VBox.vgrow="ALWAYS"/>
+            <HBox spacing="10" alignment="CENTER">
+                <Button fx:id="prevPageButton" text="Previous" onAction="#prevPage"/>
+                <Label fx:id="pageInfoLabel"/>
+                <Button fx:id="nextPageButton" text="Next" onAction="#nextPage"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
